@@ -22,6 +22,7 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // CORS Configuration
+// CORS Configuration
 const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:3000',
@@ -30,16 +31,18 @@ const allowedOrigins = [
 ].filter(Boolean);
 
 app.use(cors({
-    origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
+    origin: function (origin, callback) {
+        if (!origin) return callback(null, true); // allow server-to-server
+
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
         } else {
-            callback(new Error('Not allowed by CORS'));
+            console.log("Blocked by CORS:", origin);
+            return callback(null, false); // ❗ DO NOT throw error
         }
     },
     credentials: true
 }));
-
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
