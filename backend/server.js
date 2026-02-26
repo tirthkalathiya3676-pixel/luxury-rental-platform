@@ -65,7 +65,31 @@ app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json({ error: 'Something went wrong on the luxury deck!' });
 });
+const db = require('./db');
 
-app.listen(PORT, () => {
+async function createDefaultTenant() {
+    try {
+        const identifier = "luxury-rental-platform";
+
+        const existing = await db.query(
+            "SELECT * FROM tenants WHERE identifier = $1",
+            [identifier]
+        );
+
+        if (existing.rows.length === 0) {
+            await db.query(
+                "INSERT INTO tenants (name, identifier) VALUES ($1, $2)",
+                ["Luxury Rentals", identifier]
+            );
+            console.log("Default tenant created.");
+        } else {
+            console.log("Default tenant already exists.");
+        }
+    } catch (err) {
+        console.error("Tenant setup error:", err.message);
+    }
+}
+app.listen(PORT, async () => {
     console.log(`Server is running on port ${PORT}`);
+    await createDefaultTenant();
 });
