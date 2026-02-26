@@ -1,0 +1,27 @@
+# Render Blueprint for Luxury Rental Platform
+services:
+  # Backend Web Service
+  - type: web
+    name: rental-backend
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: rental-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: BACKEND_URL
+        fromContext: instanceUrl
+      - key: FRONTEND_URL
+        value: https://your-frontend-domain.vercel.app
+
+# Managed PostgreSQL Database
+databases:
+  - name: rental-db
+    plan: free
